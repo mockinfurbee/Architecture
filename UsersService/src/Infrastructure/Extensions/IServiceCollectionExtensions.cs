@@ -16,6 +16,7 @@ namespace Infrastructure.Extensions
         {
             services.AddTransient<IMediator, Mediator>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
     }
 }

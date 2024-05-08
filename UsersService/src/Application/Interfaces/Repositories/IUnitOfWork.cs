@@ -1,4 +1,5 @@
 ﻿using ArchitectureCommonDomainLib.Common;
+using Application.Interfaces.Repositories;
 
 namespace Application.Interfaces.Repositories
 {

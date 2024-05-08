@@ -6,7 +6,7 @@ namespace Application.Interfaces.Repositories
     {
         public IQueryable<T> Entities { get; }
 
-        public Task<T> GetByIdAsync(int id);
+        public Task<T> GetByGuidAsync(string guid);
         public Task<List<T>> GetAllAsync();
         public Task<T> AddAsync(T entity);
         public Task UpdateAsync(T entity);

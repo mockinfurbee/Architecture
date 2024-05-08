@@ -1,10 +1,9 @@
-﻿using ArchitectureCommonDomainLib.Common;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace ArchitectureCommonDomainLib.Entities
 {
-    public class User : BaseAuditableEntity
+    public class User : IdentityUser
     {
-        public string Guid { get; set; }
-        public string PasswordHash { get; set; }
+
     }
 }

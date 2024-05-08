@@ -1,6 +1,6 @@
-﻿using ArchitectureShared.Interfaces;
+﻿using ArchitectureSharedLib.Interfaces;
 
-namespace ArchitectureShared
+namespace ArchitectureSharedLib
 {
     public class Result<T> : IResult<T>
     {

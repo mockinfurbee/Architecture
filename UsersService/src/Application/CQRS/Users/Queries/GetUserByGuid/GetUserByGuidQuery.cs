@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces.Repositories;
-using ArchitectureShared;
+using Application.Interfaces.Services;
+using ArchitectureSharedLib;
 using MediatR;
 
 namespace Application.CQRS.Users.Queries.GetUserByGuid
@@ -17,18 +18,18 @@ namespace Application.CQRS.Users.Queries.GetUserByGuid
 
     internal class GetUserByGuidQueryHandler : IRequestHandler<GetUserByGuidQuery, Result<GetUserDTO>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUsersService _usersService;
 
-        public GetUserByGuidQueryHandler(IUnitOfWork unitOfWork)
+        public GetUserByGuidQueryHandler(IUsersService usersService)
         {
-            _unitOfWork = unitOfWork;
+            _usersService = usersService;
         }
 
         public async Task<Result<GetUserDTO>> Handle(GetUserByGuidQuery query, CancellationToken cancellationToken)
         {
-            //    var entity = await _unitOfWork.Repository<Player>().GetByIdAsync(query.Guid);
+            //    var entity = await _unitOfWork.Repository<Player>().GetByGuidAsync(query.Guid);
             //    var player = _mapper.Map<GetPlayerByIdDto>(entity);
-            return await _unitOfWork.UsersRepository.GetByGuidAsync(query.Guid);
+            return await _usersService.GetByGuidAsync(query.Guid);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Infrastructure.Extensions
 
         private static void AddInfrastructureLayerServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ISignInService, SignInService>();
         }
     }
 }

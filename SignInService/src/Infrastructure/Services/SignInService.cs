@@ -1,18 +1,18 @@
 ﻿using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces.Services;
-using ArchitectureShared;
+using ArchitectureSharedLib;
 using Microsoft.AspNetCore.Identity;
 using Persistence.Entities;
 
 namespace Infrastructure.Services
 {
-    internal class AuthService : IAuthService
+    internal class SignInService : ISignInService
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
-        public AuthService(UserManager<User> userManager, SignInManager<User> signInManager)
+        public SignInService(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

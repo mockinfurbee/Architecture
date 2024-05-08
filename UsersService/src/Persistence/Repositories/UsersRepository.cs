@@ -1,24 +1,23 @@
 ﻿using Application.DTOs;
 using Application.Exceptions.User;
-using Application.Interfaces.Repositories;
-using ArchitectureShared;
-using AutoMapper;
+using ArchitectureSharedLib;
 using Microsoft.AspNetCore.Identity;
-using Persistence.Entities;
+using Application.Interfaces.Repositories;
+using Infrastructure.Entities;
+using Application.Interfaces.Entities;
 
 namespace Persistence.Repositories
 {
     public class UsersRepository : IUsersRepository
     {
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
 
         public UsersRepository(UserManager<User> userManager)
         {
             _userManager = userManager;
         }
 
-        private async Task<Result<User?>> GetUserByGuidAsync(string guid)
+        public async Task<Result<IUser?>> GetByGuidAsync(string guid)
         {
             if (String.IsNullOrWhiteSpace(guid)) throw new InvalidDataException(nameof(guid));
 
@@ -26,22 +25,13 @@ namespace Persistence.Repositories
 
             if (user == null) throw new UserNotFoundException($"{nameof(guid)}: {guid}");
 
-            return await Result<User?>.SuccessAsync(data: user);
+            return await Result<IUser?>.SuccessAsync(data: user);
         }
 
-        public async Task<Result<GetUserDTO?>> GetByGuidAsync(string guid)
+        public async Task<Result<List<IUser>>> GetAllUsersAsync()
         {
-            User? user = (await GetUserByGuidAsync(guid)).Data;
-
-            return await Result<GetUserDTO?>.SuccessAsync(data: _mapper.Map<GetUserDTO>(user));
-        }
-
-        public async Task<Result<List<GetUserDTO?>>> GetAllUsersAsync()
-        {
-            var users = _userManager.Users.ToList();
-            return await Result<List<GetUserDTO?>>.SuccessAsync(data: users.Count() > 0 ? 
-                                                                      _mapper.Map<List<GetUserDTO?>>(users) 
-                                                                      : new List<GetUserDTO?>());
+            var users = (_userManager.Users as IQueryable<IUser>).ToList();
+            return await Result<List<IUser>>.SuccessAsync(data: users);
         }
 
         public async Task<Result<string>> CreateAsync(CreateUserDTO createUserDTO)

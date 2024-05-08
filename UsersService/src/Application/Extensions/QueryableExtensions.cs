@@ -1,4 +1,4 @@
-﻿using ArchitectureShared;
+﻿using ArchitectureSharedLib;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Extensions

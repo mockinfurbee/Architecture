@@ -5,21 +5,24 @@ using Application.CQRS.Users.Queries.GetAllUsersWithPagination;
 using Application.CQRS.Users.Queries.GetUserByGuid;
 using Application.DTOs;
 using Application.Exceptions.User;
-using ArchitectureShared;
+using ArchitectureSharedLib;
+using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UsersService.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]/")]
     // TODO:
+    // Swagger Authorize button, Descriptions.
+    // XMLs for swagger mb.
+    // NLog.
     // Improve Dockers.
-    // Swagger versionin + Authorize button, Descriptions.
-    // NLog/SeriLog.
     // Tests: positive and negative.
-    // Mb Client-side.
-    // XMLs mb.
+    // Mb Client-side logic.
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -75,7 +78,7 @@ namespace UsersService.API.Controllers
             return Ok(await _mediator.Send(command));
         }
 
-        [HttpDelete("{guid}")]
+        [HttpDelete("{guid}"), Authorize]
         public async Task<ActionResult<Result<string>>> Delete(string guid)
         {
             try

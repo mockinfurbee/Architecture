@@ -1,4 +1,4 @@
-﻿namespace ArchitectureShared
+﻿namespace ArchitectureSharedLib
 {
     public class PaginatedResult<T> : Result<T>
     {
@@ -30,7 +30,7 @@
 
         public static PaginatedResult<T> Create(List<T> data, int count, int pageNumber, int pageSize)
         {
-            return new PaginatedResult<T>(true, data, null, count, pageNumber, pageSize);
+            return new PaginatedResult<T>(succeeded: true, data, messages: null, count, pageNumber, pageSize);
         }
     }
 }

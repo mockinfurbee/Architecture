@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArchitectureShared.Interfaces
+namespace ArchitectureSharedLib.Interfaces
 {
     public interface IResult<T>
     {

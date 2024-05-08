@@ -22,11 +22,11 @@ namespace Persistence.Repositories
             return entity;
         }
 
-        public Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
-            T exist = _context.Set<T>().Find(entity.Id);
+            T exist = await _context.Set<T>().FirstOrDefaultAsync(x => x.Guid == entity.Guid);
             _context.Entry(exist).CurrentValues.SetValues(entity);
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public Task DeleteAsync(T entity)
@@ -42,9 +42,9 @@ namespace Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByGuidAsync(string guid)
         {
-            return await _context.Set<T>().FindAsync(id);
+            return await _context.Set<T>().FirstOrDefaultAsync(x => x.Guid == guid);
         }
     }
 }

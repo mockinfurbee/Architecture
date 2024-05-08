@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces.Services;
-using ArchitectureShared;
+using ArchitectureSharedLib;
 using MediatR;
 
 namespace Application.CQRS.Users.Queries.GetAllUsers

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ArchitectureShared\ArchitectureShared.csproj" />
+    <ProjectReference Include="..\..\..\ArchitectureSharedLib\ArchitectureSharedLib.csproj" />
   </ItemGroup>
 
 </Project>

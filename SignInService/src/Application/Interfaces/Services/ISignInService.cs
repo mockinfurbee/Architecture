@@ -1,9 +1,9 @@
 ﻿using Application.DTOs;
-using ArchitectureShared;
+using ArchitectureSharedLib;
 
 namespace Application.Interfaces.Services
 {
-    public interface IAuthService
+    public interface ISignInService
     {
         public Task<Result<string>> LoginAsync(LoginUserDTO loginUserDTO);
 

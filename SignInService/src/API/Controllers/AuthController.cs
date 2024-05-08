@@ -1,7 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces.Services;
-using ArchitectureShared;
+using ArchitectureSharedLib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,9 +11,9 @@ namespace API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly ISignInService _authService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(ISignInService authService)
         {
             _authService = authService;
         }

@@ -4,6 +4,6 @@ namespace ArchitectureCommonDomainLib.Common
 {
     public class BaseEntity : IEntity
     {
-        public Guid Id { get; set; }
+        public string Guid { get; set; }
     }
 }
