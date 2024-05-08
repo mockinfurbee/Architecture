@@ -8,5 +8,6 @@ namespace Application.Interfaces.Entities
 {
     public interface IUser
     {
+        public string Id { get; set; }
     }
 }

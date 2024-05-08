@@ -1,8 +1,15 @@
 using API.MySwagger;
 using Application.Extensions;
+using Application.Interfaces.Entities;
+using Application.Interfaces.Services;
 using Asp.Versioning;
+using Infrastructure.Entities;
 using Infrastructure.Extensions;
+using Infrastructure.Helpers;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Persistence.Extensions;
@@ -12,7 +19,7 @@ namespace UsersService.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +32,12 @@ namespace UsersService.API
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "yourIssuer",
-                    ValidAudience = "yourAudience",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("yourSecretKey")),
-                    ClockSkew = TimeSpan.Zero // Optional - adjust as needed
+                    ValidIssuer = builder.Configuration.GetValue<string>("TokenValidationParams:ValidIssuer"),
+                    ValidAudience = builder.Configuration.GetValue<string>("TokenValidationParams:ValidAudience"),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("TokenValidationParams:SecretKey"))),
+                    ClockSkew = TimeSpan.Zero
                 };
-            }); ////////////////
+            });
 
             builder.Services.AddApplicationLayer();
             builder.Services.AddInfrastructureLayer();
@@ -42,14 +49,14 @@ namespace UsersService.API
             {
                 swagger.OperationFilter<SwaggerDefaults>();
 
-                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() // just for.
+                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Enter your JWT-token in format: \"Bearer myToken\"",
+                    Description = "Enter your JWT-token in format: \"Bearer myTokenFullValue\"",
                 });
                 swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
@@ -88,6 +95,23 @@ namespace UsersService.API
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            using (var scope = app.Services.CreateScope()) // Init db w/ roles and admin if db clean.
+            {
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    await DbSeeder.InitializeAsync(userManager, rolesManager, builder.Configuration);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while seeding the database.");
+                }
+            }
 
             app.MapControllers();
 

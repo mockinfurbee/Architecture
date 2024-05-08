@@ -17,10 +17,10 @@ namespace UsersService.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/")]
     // TODO:
-    // Swagger Authorize button, Descriptions.
+    // Swagger custom Descriptions.
     // XMLs for swagger mb.
     // NLog.
-    // Improve Dockers.
+    // Improve Dockers mb.
     // Tests: positive and negative.
     // Mb Client-side logic.
     public class UsersController : ControllerBase
@@ -34,9 +34,10 @@ namespace UsersService.API.Controllers
 
         private ActionResult GetSuitableAnswerForException(Exception ex)
         {
-            if (ex is UserNotFoundException) return NotFound(ex.Message);
-            else if (ex is InvalidDataException) return BadRequest(ex.Message);
-            return new ObjectResult(ex.Message);
+            var message = $"{ex.GetType()}: {ex.Message}";
+            if (ex is UserNotFoundException) return NotFound(message);
+            else if (ex is InvalidDataException) return BadRequest(message);
+            return new ObjectResult(message);
         }
 
         [HttpGet]
@@ -78,7 +79,8 @@ namespace UsersService.API.Controllers
             return Ok(await _mediator.Send(command));
         }
 
-        [HttpDelete("{guid}"), Authorize]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpDelete("{guid}")]
         public async Task<ActionResult<Result<string>>> Delete(string guid)
         {
             try

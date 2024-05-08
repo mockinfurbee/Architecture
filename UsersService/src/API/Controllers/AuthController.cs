@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Exceptions.User;
 using Application.Interfaces.Services;
 using ArchitectureSharedLib;
 using Asp.Versioning;
@@ -18,16 +19,26 @@ namespace API.Controllers
             _authService = authService;
         }
 
-        [HttpPost]
+        private ActionResult GetSuitableAnswerForException(Exception ex)
+        {
+            var message = $"{ex.GetType()}: {ex.Message}";
+            if (ex is UserNotFoundException) return NotFound(message);
+            else if (ex is InvalidDataException) return BadRequest(message);
+            return new ObjectResult(message);
+        }
+
+        [HttpPost, Route("Login")]
         public async Task<ActionResult<Result<string>>> Login(AuthUserDTO authUserDTO)
         {
             try
             {
-                return await _authService.LoginAsync(authUserDTO);
+                var result = await _authService.LoginAsync(authUserDTO);
+                if (!result.Succeeded) return Unauthorized(result);
+                return Ok(result);
             }
-            catch (InvalidDataException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return GetSuitableAnswerForException(ex);
             }
         }
     }

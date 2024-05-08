@@ -4,6 +4,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using ArchitectureSharedLib;
 using AutoMapper;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Services
 {
