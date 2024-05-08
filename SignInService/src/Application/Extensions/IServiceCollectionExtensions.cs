@@ -5,14 +5,9 @@ namespace Application.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static void AddApplicationLayer(this IServiceCollection services)
-        {
-            services.AddAutoMapper();
-        }
+        //public static void AddApplicationLayer(this IServiceCollection services)
+        //{
 
-        private static void AddAutoMapper(this IServiceCollection services)
-        {
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
-        }
+        //}
     }
 }

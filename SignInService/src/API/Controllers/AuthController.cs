@@ -20,9 +20,10 @@ namespace API.Controllers
 
         private ActionResult GetSuitableAnswerForException(Exception ex)
         {
-            if (ex is UserNotFoundException) return NotFound(ex.Message);
-            else if (ex is InvalidDataException) return BadRequest(ex.Message);
-            return new ObjectResult(ex.Message);
+            var message = $"{ex.GetType()}: {ex.Message}";
+            if (ex is UserNotFoundException) return NotFound(message);
+            else if (ex is InvalidDataException) return BadRequest(message);
+            return new ObjectResult(message);
         }
 
         [HttpPost]

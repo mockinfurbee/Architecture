@@ -1,4 +1,3 @@
-using Application.Extensions;
 using Infrastructure.Extensions;
 using Persistence.Extensions;
 
@@ -10,7 +9,7 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddApplicationLayer();
+            //builder.Services.AddApplicationLayer();
             builder.Services.AddInfrastructureLayer();
             builder.Services.AddPersistenceLayer(builder.Configuration);
 
