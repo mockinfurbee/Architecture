@@ -7,6 +7,8 @@
     <UserSecretsId>95763220-294d-4f07-9dcf-379eeff4699d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>bin\API.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
