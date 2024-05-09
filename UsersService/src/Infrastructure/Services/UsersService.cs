@@ -1,10 +1,9 @@
 ﻿using Application.DTOs;
-using Application.Interfaces.Entities;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using ArchitectureSharedLib;
 using AutoMapper;
-using Infrastructure.Entities;
+using NLog;
 
 namespace Infrastructure.Services
 {
@@ -12,6 +11,8 @@ namespace Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public UsersService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -21,22 +22,58 @@ namespace Infrastructure.Services
 
         public Task<Result<string>> CreateAsync(CreateUserDTO createUserDTO)
         {
-            return _unitOfWork.UsersRepository.CreateAsync(createUserDTO);
+            try
+            {
+                _logger.Info("CreateAsync");
+                return _unitOfWork.UsersRepository.CreateAsync(createUserDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                throw;
+            }
         }
 
         public Task<Result<string>> DeleteAsync(string guid)
         {
-            return _unitOfWork.UsersRepository.DeleteAsync(guid);
+            try
+            {
+                _logger.Info("DeleteAsync");
+                return _unitOfWork.UsersRepository.DeleteAsync(guid);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                throw;
+            }
         }
 
         public async Task<Result<List<GetUserDTO>>> GetAllUsersAsync()
         {
-            return await Result<List<GetUserDTO>>.SuccessAsync(_mapper.Map<List<GetUserDTO>>((await _unitOfWork.UsersRepository.GetAllUsersAsync()).Data));
+            try
+            {
+                _logger.Info("GetAllUsersAsync");
+                return await Result<List<GetUserDTO>>.SuccessAsync(_mapper.Map<List<GetUserDTO>>((await _unitOfWork.UsersRepository.GetAllUsersAsync()).Data));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                throw;
+            }
         }
 
         public async Task<Result<GetUserDTO?>> GetByGuidAsync(string guid)
         {
-            return await Result<GetUserDTO?>.SuccessAsync(_mapper.Map<GetUserDTO?>((await _unitOfWork.UsersRepository.GetByGuidAsync(guid)).Data));
-        }
+            try
+            {
+                _logger.Info($"GetByGuidAsync: {guid}");
+                return await Result<GetUserDTO?>.SuccessAsync(_mapper.Map<GetUserDTO?>((await _unitOfWork.UsersRepository.GetByGuidAsync(guid)).Data));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                throw;
+            }
+         }
     }
 }

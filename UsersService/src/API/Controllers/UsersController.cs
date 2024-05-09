@@ -17,11 +17,10 @@ namespace UsersService.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/")]
     // TODO:
-    // Swagger custom Descriptions.
-    // NLog.
-    // Improve Dockers mb.
     // Tests: positive and negative.
     // Mb Client-side logic.
+    // READMEmd
+    // Improve Dockers mb.
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
