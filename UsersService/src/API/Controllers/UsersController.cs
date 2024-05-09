@@ -17,12 +17,10 @@ namespace UsersService.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/")]
     // TODO:
-    // Swagger custom Descriptions.
-    // XMLs for swagger mb.
-    // NLog.
-    // Improve Dockers mb.
     // Tests: positive and negative.
     // Mb Client-side logic.
+    // READMEmd
+    // Improve Dockers mb.
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -79,6 +77,20 @@ namespace UsersService.API.Controllers
             return Ok(await _mediator.Send(command));
         }
 
+        /// <summary>
+        /// You can use this endpoint only if u have logged in via Login endpoint of AuthController.
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <remarks>
+        /// Be careful.
+        /// </remarks>
+        /// <returns><see cref="string"/></returns>
+        /// <response code="401">You have to auth via Login endpoint of AuthController.</response>
+        /// <response code="404">Pay more attention. UserNotFound:)</response>
+        /// <response code="400">You provided invalid guid-value by some way... Most likely it was empty or null.</response> 
+        /// <response code="500">Most likely, error on API server-side.</response>  
+        /// <exception cref="UserNotFoundException"></exception>
+        /// <exception cref="InvalidDataException"></exception>
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpDelete("{guid}")]
         public async Task<ActionResult<Result<string>>> Delete(string guid)

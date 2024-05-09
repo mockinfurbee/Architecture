@@ -1,18 +1,16 @@
 using API.MySwagger;
 using Application.Extensions;
-using Application.Interfaces.Entities;
-using Application.Interfaces.Services;
 using Asp.Versioning;
 using Infrastructure.Entities;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NLog;
 using Persistence.Extensions;
+using System.Reflection;
 using System.Text;
 
 namespace UsersService.API
@@ -22,6 +20,8 @@ namespace UsersService.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            LogManager.Setup();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -73,7 +73,9 @@ namespace UsersService.API
                     }
                 });
 
-                //swagger.IncludeXmlComments(filename);
+                var filename = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+
+                swagger.IncludeXmlComments(filename);
             });
 
             builder.Services.AddApiVersioning(api =>

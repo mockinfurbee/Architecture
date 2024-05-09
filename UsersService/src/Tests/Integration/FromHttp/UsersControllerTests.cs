@@ -1,6 +1,6 @@
-namespace Tests
+namespace Tests.Integration.FromHttp
 {
-    public class Tests
+    public class UsersServiceTests
     {
         [SetUp]
         public void Setup()
