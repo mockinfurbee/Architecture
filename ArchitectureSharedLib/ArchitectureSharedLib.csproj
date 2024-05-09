@@ -4,6 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Vladislav Gashenko</Authors>
+    <RepositoryUrl>https://github.com/notssl/Architecture</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackAsTool>True</PackAsTool>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageProjectUrl>https://github.com/notssl/Architecture</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

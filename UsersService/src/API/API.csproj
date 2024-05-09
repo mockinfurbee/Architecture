@@ -9,6 +9,10 @@
     <DockerfileContext>.</DockerfileContext>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>bin\API.xml</DocumentationFile>
+    <Authors>Vladislav Gashenko</Authors>
+    <PackageProjectUrl>https://github.com/notssl/Architecture</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/notssl/Architecture</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
