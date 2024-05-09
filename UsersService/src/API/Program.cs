@@ -1,3 +1,4 @@
+using API.HealthCheck;
 using API.MySwagger;
 using Application.Extensions;
 using Asp.Versioning;
@@ -5,13 +6,18 @@ using Infrastructure.Entities;
 using Infrastructure.Extensions;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog;
+using Persistence.Contexts;
 using Persistence.Extensions;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace UsersService.API
 {
@@ -90,6 +96,12 @@ namespace UsersService.API
                 api.SubstituteApiVersionInUrl = true;
             });
 
+            builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, MySwaggerOptions>();
+
+            builder.Services.AddHealthChecks()
+                            .AddDbContextCheck<DataContext>()
+                            .AddCheck<ExampleHealthCheck>(name: "IsKaboomHC");
+
             var app = builder.Build();
 
             app.UseHttpsRedirection();
@@ -130,6 +142,27 @@ namespace UsersService.API
                     var subpath = $"/swagger/{spec.GroupName}/swagger.json";
                     var title = spec.GroupName.ToUpperInvariant();
                     swagger.SwaggerEndpoint(subpath, title);
+                }
+            });
+
+            app.UseHealthChecks("/hc", new HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    context.Response.ContentType = "application/json";
+                    var response = new HealthCheckResponse
+                    {
+                        Status = report.Status.ToString(),
+                        HealthChecks = report.Entries.Select(x => new IndividualHealthCheckResponse
+                        {
+                            Component = x.Key,
+                            Status = x.Value.Status.ToString(),
+                            Description = x.Value.Description
+
+                        }),
+                        HealthCheckDuration = report.TotalDuration
+                    };
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(response));
                 }
             });
 

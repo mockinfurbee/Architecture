@@ -70,6 +70,12 @@ UsersService/src/Tests/bin/
 
 UsersService/src/Tests/obj/
 
+Watchdog/.vs/
+
+Watchdog/bin/
+
+Watchdog/obj/
+
 #Ignore thumbnails created by Windows
 Thumbs.db
 #Ignore files built by Visual Studio

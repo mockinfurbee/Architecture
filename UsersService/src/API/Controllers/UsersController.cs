@@ -18,9 +18,10 @@ namespace UsersService.API.Controllers
     [Route("api/v{version:apiVersion}/[controller]/")]
     // TODO:
     // Tests: positive and negative.
-    // Mb Client-side logic.
-    // READMEmd
+    // READMEmd upd mb.
     // Improve Dockers mb.
+	
+    // Mb Client-side logic.
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
