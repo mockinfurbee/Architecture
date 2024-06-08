@@ -1,8 +1,10 @@
 ﻿using Application.Interfaces.Services;
-using Infrastructure.Helpers;
 using Infrastructure.Services;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace Infrastructure.Extensions
 {

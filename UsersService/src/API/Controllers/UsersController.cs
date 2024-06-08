@@ -8,23 +8,22 @@ using Application.CQRS.Users.Queries.GetUserByGuid;
 using Application.Exceptions.User;
 using ArchitectureSharedLib;
 using Asp.Versioning;
+using Infrastructure.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
+using System.Diagnostics;
 
 namespace UsersService.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/")]
-    // TODO:
-    // Tests: positive and negative.
-    // READMEmd upd mb.
-	
-    // Mb Client-side logic.
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public UsersController(IMediator mediator)
         {
@@ -36,61 +35,124 @@ namespace UsersService.API.Controllers
             var message = $"{ex.GetType()}: {ex.Message}";
             if (ex is UserNotFoundException) return NotFound(message);
             else if (ex is InvalidDataException) return BadRequest(message);
-            return new ObjectResult(message);
+            return Problem(message);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<GetUserDTOOut>>>> Get()
+        public async Task<ActionResult<Result<List<GetUserDTOOut>>>> Get(Guid traceId)
         {
-            var serviceAnswer = await _mediator.Send(new GetAllUsersQuery());
-            var result = new Result<List<GetUserDTOOut>>();
-            result.Succeeded = true;
-            result.Data = serviceAnswer.Data.Select(x => x.ToOutModel()).ToList();
-            return result;
-        }
-
-        [HttpGet("{guid}")]
-        public async Task<ActionResult<Result<GetUserDTOOut>>> GetUserByGuid(string guid)
-        {
+            var sw = new Stopwatch();
+            var request = "Get";
             try
             {
-                var serviceAnswer = await _mediator.Send(new GetUserByGuidQuery(guid));
-                var result = new Result<GetUserDTOOut>();
+                sw.Start();
+
+                var serviceAnswer = await _mediator.Send(new GetAllUsersQuery());
+                var result = new Result<List<GetUserDTOOut>>();
                 result.Succeeded = true;
-                result.Data = new GetUserDTOOut(serviceAnswer.Data.Id);
+                result.Data = serviceAnswer.Data.Select(x => x.ToOutModel()).ToList();
+
+                var logInfo = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, result);
+                _logger.Info(logInfo);
+
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                var logError = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, ex.Message);
+                _logger.Error(ex);
+                return GetSuitableAnswerForException(ex);
+            }
+        }
+
+        [HttpGet("{guid}")]
+        public async Task<ActionResult<Result<GetUserDTOOut>>> GetUserByGuid(string guid, Guid traceId)
+        {
+            var sw = new Stopwatch();
+            var request = $"GetUserByGuid {guid}";
+            try
+            {
+                sw.Start();
+
+                var serviceAnswer = await _mediator.Send(new GetUserByGuidQuery(guid));
+                var result = new Result<GetUserDTOOut>();
+                result.Succeeded = true;
+                result.Data = new GetUserDTOOut(serviceAnswer.Data.Id);
+
+                var logInfo = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, result);
+                _logger.Info(logInfo);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var logError = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, ex.Message);
+                _logger.Error(ex);
                 return GetSuitableAnswerForException(ex);
             }
         }
 
         [HttpGet]
         [Route("Paginated")]
-        public async Task<ActionResult<PaginatedResult<GetUserDTOOut>>> GetAllUsersWithPagination([FromQuery] GetUsersWithPaginationQuery query)
+        public async Task<ActionResult<PaginatedResult<GetUserDTOOut>>> GetAllUsersWithPagination([FromQuery] GetUsersWithPaginationQuery query, Guid traceId)
         {
-            var validator = new GetUsersWithPaginationValidator();
-
-            var validationResult = validator.Validate(query);
-
-            if (validationResult.IsValid)
+            var sw = new Stopwatch();
+            try
             {
-                var serviceAnswer = await _mediator.Send(query);
-                var data = serviceAnswer.Data.Select(x => new GetUserDTOOut(x.Id)).ToList();
-                var result = new PaginatedResult<GetUserDTOOut>(data);
-                result.Succeeded = true;
-                return Ok(result);
-            }
+                sw.Start();
 
-            var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
-            return BadRequest(errorMessages);
+                var validator = new GetUsersWithPaginationValidator();
+
+                var validationResult = validator.Validate(query);
+
+                if (validationResult.IsValid)
+                {
+                    var serviceAnswer = await _mediator.Send(query);
+                    var data = serviceAnswer.Data.Select(x => new GetUserDTOOut(x.Id)).ToList();
+                    var result = new PaginatedResult<GetUserDTOOut>(data);
+                    result.Succeeded = true;
+
+                    var logInfo = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, query, result);
+                    _logger.Info(logInfo);
+
+                    return Ok(result);
+                }
+
+                var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
+
+                var logE = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, query, errorMessages);
+                _logger.Error(logE);
+
+                return BadRequest(errorMessages);
+            }
+            catch (Exception ex)
+            {
+                var logError = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, query, ex.Message);
+                _logger.Error(logError);
+                return GetSuitableAnswerForException(ex);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<string>>> Create(CreateUserCommand command)
+        public async Task<ActionResult<Result<string>>> Create(CreateUserCommand command, Guid traceId)
         {
-            return Ok(await _mediator.Send(command));
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Start();
+                var answer = await _mediator.Send(command);
+
+                var logInfo = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, command, answer);
+                _logger.Info(logInfo);
+
+                return Ok(answer);
+            }
+            catch (Exception ex)
+            {
+                var logError = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, command, ex.Message);
+                _logger.Error(logError);
+                return GetSuitableAnswerForException(ex);
+            }
         }
 
         /// <summary>
@@ -109,14 +171,25 @@ namespace UsersService.API.Controllers
         /// <exception cref="InvalidDataException"></exception>
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpDelete("{guid}")]
-        public async Task<ActionResult<Result<string>>> Delete(string guid)
+        public async Task<ActionResult<Result<string>>> Delete(string guid, Guid traceId)
         {
+            Stopwatch sw = new Stopwatch();
+            var request = $"Delete {guid}";
             try
             {
-                return Ok(await _mediator.Send(new DeleteUserCommand(guid)));
+                sw.Start();
+
+                var answer = await _mediator.Send(new DeleteUserCommand(guid));
+
+                var logInfo = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, answer);
+                _logger.Info(logInfo);
+
+                return Ok(answer);
             }
             catch (Exception ex)
             {
+                var logError = MyLogHelper.StopSwAndGetLogString(traceId.ToString(), sw, request, ex.Message);
+                _logger.Info(logError);
                 return GetSuitableAnswerForException(ex);
             }
         }

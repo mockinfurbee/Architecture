@@ -1,4 +1,5 @@
 using API.HealthCheck;
+using API.Middlewares;
 using API.MySwagger;
 using Application.Extensions;
 using Asp.Versioning;
@@ -26,8 +27,6 @@ namespace UsersService.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            LogManager.Setup();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -112,11 +111,11 @@ namespace UsersService.API
 
             var app = builder.Build();
 
-            app.UseHttpsRedirection();
-
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseMiddleware<ErrorHandler>();
 
             using (var scope = app.Services.CreateScope()) // Init db w/ roles and admin if db clean.
             {
