@@ -1,9 +1,10 @@
-﻿using Application.CQRS.Users.Commands.CreateUser;
+﻿using API.Converters;
+using API.DTOs.Out;
+using Application.CQRS.Users.Commands.CreateUser;
 using Application.CQRS.Users.Commands.DeleteUser;
 using Application.CQRS.Users.Queries.GetAllUsers;
 using Application.CQRS.Users.Queries.GetAllUsersWithPagination;
 using Application.CQRS.Users.Queries.GetUserByGuid;
-using Application.DTOs;
 using Application.Exceptions.User;
 using ArchitectureSharedLib;
 using Asp.Versioning;
@@ -19,7 +20,6 @@ namespace UsersService.API.Controllers
     // TODO:
     // Tests: positive and negative.
     // READMEmd upd mb.
-    // Improve Dockers mb.
 	
     // Mb Client-side logic.
     public class UsersController : ControllerBase
@@ -40,17 +40,25 @@ namespace UsersService.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<GetUserDTO>>>> Get()
+        public async Task<ActionResult<Result<List<GetUserDTOOut>>>> Get()
         {
-            return await _mediator.Send(new GetAllUsersQuery());
+            var serviceAnswer = await _mediator.Send(new GetAllUsersQuery());
+            var result = new Result<List<GetUserDTOOut>>();
+            result.Succeeded = true;
+            result.Data = serviceAnswer.Data.Select(x => x.ToOutModel()).ToList();
+            return result;
         }
 
         [HttpGet("{guid}")]
-        public async Task<ActionResult<Result<GetUserDTO>>> GetUserByGuid(string guid)
+        public async Task<ActionResult<Result<GetUserDTOOut>>> GetUserByGuid(string guid)
         {
             try
-            { 
-                return Ok(await _mediator.Send(new GetUserByGuidQuery(guid)));
+            {
+                var serviceAnswer = await _mediator.Send(new GetUserByGuidQuery(guid));
+                var result = new Result<GetUserDTOOut>();
+                result.Succeeded = true;
+                result.Data = new GetUserDTOOut(serviceAnswer.Data.Id);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -60,15 +68,22 @@ namespace UsersService.API.Controllers
 
         [HttpGet]
         [Route("Paginated")]
-        public async Task<ActionResult<PaginatedResult<GetUserDTO>>> GetAllUsersWithPagination([FromQuery] GetUsersWithPaginationQuery query)
+        public async Task<ActionResult<PaginatedResult<GetUserDTOOut>>> GetAllUsersWithPagination([FromQuery] GetUsersWithPaginationQuery query)
         {
             var validator = new GetUsersWithPaginationValidator();
 
-            var result = validator.Validate(query);
+            var validationResult = validator.Validate(query);
 
-            if (result.IsValid) return Ok(await _mediator.Send(query));
+            if (validationResult.IsValid)
+            {
+                var serviceAnswer = await _mediator.Send(query);
+                var data = serviceAnswer.Data.Select(x => new GetUserDTOOut(x.Id)).ToList();
+                var result = new PaginatedResult<GetUserDTOOut>(data);
+                result.Succeeded = true;
+                return Ok(result);
+            }
 
-            var errorMessages = result.Errors.Select(x => x.ErrorMessage).ToList();
+            var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
             return BadRequest(errorMessages);
         }
 

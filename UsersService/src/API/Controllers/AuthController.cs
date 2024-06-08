@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using API.Converters;
+using API.DTOs.In;
 using Application.Exceptions.User;
 using Application.Interfaces.Services;
 using ArchitectureSharedLib;
@@ -28,11 +29,11 @@ namespace API.Controllers
         }
 
         [HttpPost, Route("Login")]
-        public async Task<ActionResult<Result<string>>> Login(AuthUserDTO authUserDTO)
+        public async Task<ActionResult<Result<string>>> Login(AuthUserDTOIn authUserDTOIn)
         {
             try
             {
-                var result = await _authService.LoginAsync(authUserDTO);
+                var result = await _authService.LoginAsync(authUserDTOIn.ToServiceModel());
                 if (!result.Succeeded) return Unauthorized(result);
                 return Ok(result);
             }

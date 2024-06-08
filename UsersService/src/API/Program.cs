@@ -54,7 +54,7 @@ namespace UsersService.API
             builder.Services.AddSwaggerGen(swagger =>
             {
                 swagger.OperationFilter<SwaggerDefaults>();
-
+                swagger.SupportNonNullableReferenceTypes();
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
@@ -64,6 +64,7 @@ namespace UsersService.API
                     In = ParameterLocation.Header,
                     Description = "Enter your JWT-token in format: \"Bearer myTokenFullValue\"",
                 });
+                swagger.UseAllOfToExtendReferenceSchemas();
                 swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -79,9 +80,16 @@ namespace UsersService.API
                     }
                 });
 
-                var filename = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
-
-                swagger.IncludeXmlComments(filename);
+                var myAppAssemblies = AppDomain.CurrentDomain.GetAssemblies().Select(x => x.GetName().Name).ToList();
+                var xmlFilesPath = myAppAssemblies.Select(x => $"{x}.xml").ToList();
+                foreach (var path in xmlFilesPath)
+                {
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, path);
+                    if (File.Exists(xmlPath))
+                    {
+                        swagger.IncludeXmlComments(xmlPath);
+                    }
+                }
             });
 
             builder.Services.AddApiVersioning(api =>
