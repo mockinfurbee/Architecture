@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using API.Converters;
+using API.DTOs;
 using Application.Exceptions;
 using Application.Interfaces.Services;
 using ArchitectureSharedLib;
@@ -23,15 +24,15 @@ namespace API.Controllers
             var message = $"{ex.GetType()}: {ex.Message}";
             if (ex is UserNotFoundException) return NotFound(message);
             else if (ex is InvalidDataException) return BadRequest(message);
-            return new ObjectResult(message);
+            return Problem(message);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<string>>> SignIn(LoginUserDTO loginUserDTO)
+        public async Task<ActionResult<Result<string>>> SignIn(LoginUserDTOIn loginUserDTOIn)
         {
             try
             {
-                return Ok(await _authService.LoginAsync(loginUserDTO));
+                return Ok(await _authService.LoginAsync(loginUserDTOIn.ToServiceModel()));
             }
             catch (Exception ex)
             {
